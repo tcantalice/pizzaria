@@ -1,0 +1,17 @@
+[flake8]
+exclude =
+    .git,
+    .gitignore,
+    *.pot,
+    *.py[co],
+    __pycache__,
+    venv,
+    .env,
+    .editorconfig,
+    manage.py,
+    *.toml,
+    *.lock
+
+max-line-length = 79
+enable-extensions = flake8-django
+extend-ignore = E203
