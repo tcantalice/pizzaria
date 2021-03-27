@@ -14,8 +14,7 @@ def __console_log(message_format, **kwargs):
     print(message_format.format(**kwargs))
 
 
-
-def bootstrap_module():
+def bootstrap_module(ready):
     def __bootstrap_module(ready):
         @wraps(ready)
         def wrapper(self, *args):
@@ -47,6 +46,4 @@ def bootstrap_module():
 
         return wrapper
 
-    return __bootstrap_module
-
-
+    return __bootstrap_module(ready)
