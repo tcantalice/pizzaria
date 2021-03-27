@@ -15,7 +15,7 @@ def __console_log(message_format, **kwargs):
 
 
 
-def boostrap_module():
+def bootstrap_module():
     def __bootstrap_module(ready):
         @wraps(ready)
         def wrapper(self, *args):
