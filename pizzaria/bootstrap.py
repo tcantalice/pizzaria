@@ -4,53 +4,58 @@ Contém funções úteis para o preparo dos módulos durante a inicialização
 
 from functools import wraps
 
-from pendulum import now
+import logging
 
-CONSOLE_BOOTSTRAP_INFO = '[{time}] [BOOTSTRAP] [INFO]'
-CONSOLE_BOOTSTRAP_ERROR = '[{time}] [BOOTSTRAP] [ERROR]'
-CONSOLE_BOOTSTRAP_ALERT = '[{time}] [BOOTSTRAP] [ALERT]'
+# from pendulum import now
+
+logger = logging.getLogger('bootstrap')
+
+CONSOLE_BOOTSTRAP_INFO = '[{time}] [bootstrap] [INFO]'
+CONSOLE_BOOTSTRAP_ERROR = '[{time}] [bootstrap] [ERROR]'
+CONSOLE_BOOTSTRAP_ALERT = '[{time}] [bootstrap] [ALERT]'
 
 
-def __console_log(message_format, **kwargs):
-    print(message_format.format(**kwargs))
+def __default_log(level, message, *args, **kwargs):
+    '''Registra a mensagem no log padrão da aplicação'''
+    logger.log(level, message, *args, **kwargs)
+
+
+def __info_initialize_module(module_name):
+    '''Log de informação da inicialização de carregamento do módulo'''
+    message = "Iniciado carregamento do módulo '%s'"
+    __default_log(logging.INFO, message, module_name)
+
+
+def __info_finalize_module(module_name):
+    '''Log de informação do encerramento de carregamento do módulo'''
+    message = "Carregamento do módulo '%s' concluído com sucesso"
+    # __console_log(
+    #     CONSOLE_BOOTSTRAP_INFO, message, time=now().to_datetime_string()
+    # )
+    __default_log(logging.INFO, message, module_name)
+
+
+def __error_module(error):
+    '''Log de erro durante o carregamento do módulo'''
+    message = str(error)
+    # __console_log(CONSOLE_BOOTSTRAP_ERROR, message)
+    __default_log(logging.ERROR, message)
 
 
 def bootstrap_module(ready):
-    def __bootstrap_module(ready):
-        @wraps(ready)
-        def wrapper(self, *args):
-            START_FORMAT = (
-                CONSOLE_BOOTSTRAP_INFO
-                + " Iniciado carregamento do módulo - '{name}'"
-            )
-            ERROR_FORMAT = CONSOLE_BOOTSTRAP_ERROR + ' {error}'
-            END_FORMAT = (
-                CONSOLE_BOOTSTRAP_INFO
-                + " Carregamento do módulo '{name}' concluído com sucesso"
-            )
+    @wraps(ready)
+    def wrapper(instance):
+        module_name = instance.name
 
-            module_name = self.name
+        __info_initialize_module(module_name)
+        try:
+            ready(instance)
+        except Exception as e:
+            __error_module(e)
+        else:
+            __info_finalize_module(module_name)
 
-            __console_log(
-                START_FORMAT, time=now().to_datetime_string(), name=module_name
-            )
-            try:
-                ready(self)
-            except Exception as e:
-                __console_log(
-                    ERROR_FORMAT, time=now().to_datetime_string(), error=e
-                )
-            else:
-                __console_log(
-                    END_FORMAT,
-                    time=now().to_datetime_string(),
-                    name=module_name,
-                )
-
-        return wrapper
-
-    return __bootstrap_module(ready)
-
+    return wrapper
 
 class BootstrapModuleError(Exception):
     def __init__(self, message, *args) -> None:
@@ -72,5 +77,5 @@ class DependencyModuleError(BootstrapModuleError):
             self.message_format.format(
                 dependent=dependent_module, dependecy=dependecy_module
             ),
-            *args
+            *args,
         )
