@@ -23,8 +23,9 @@ CACHE = {
 }
 
 INSTALLED_APPS = [
-    'django.contrib.contenttypes',
-    'django.contrib.messages',
+    # System modules
+    'pizzaria.modules.core.CoreConfig',
+    'django.contrib.messages'
 ]
 
 MIDDLEWARE = [
