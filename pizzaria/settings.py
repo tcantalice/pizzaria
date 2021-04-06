@@ -25,6 +25,7 @@ CACHE = {
 INSTALLED_APPS = [
     # System modules
     'pizzaria.modules.core.CoreConfig',
+    'pizzaria.modules.domain.DomainConfig',
     'django.contrib.messages'
 ]
 
