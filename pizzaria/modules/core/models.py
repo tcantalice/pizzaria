@@ -7,4 +7,4 @@ class ActivableModel(models.Model):
     objects = ActivableManager()
 
 class DomainModel(models.Model):
-    descricao = models.CharField(length=45)
+    descricao = models.CharField(max_length=45)
