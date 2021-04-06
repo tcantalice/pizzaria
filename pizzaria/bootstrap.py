@@ -62,7 +62,7 @@ class BootstrapModuleError(Exception):
         return '{}: {}'.format(class_name, self.message)
 
 
-class RequirementModuleError(BootstrapModuleError):
+class DependencyModuleError(BootstrapModuleError):
     message_format = (
         "O módulo '{dependent}' requer o módulo '{dependecy}' instalado"
     )

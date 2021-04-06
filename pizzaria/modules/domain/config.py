@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 from django.apps.registry import apps
 
-from pizzaria.bootstrap import bootstrap_module, RequirementModuleError
+from pizzaria.bootstrap import bootstrap_module, DependencyModuleError
 
 
 class DomainConfig(AppConfig):
@@ -15,5 +15,5 @@ class DomainConfig(AppConfig):
     def ready(self):
         for dependecy in self.dependecies:
             if not apps.is_installed:
-                raise RequirementModuleError(self.name, dependecy)
+                raise DependencyModuleError(self.name, dependecy)
         return
