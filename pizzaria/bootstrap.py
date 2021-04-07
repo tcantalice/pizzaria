@@ -3,9 +3,7 @@ Contém funções úteis para o preparo dos módulos durante a inicialização
 """
 
 from functools import wraps
-
 import logging
-from django.apps import registry
 
 logger = logging.getLogger('bootstrap')
 
@@ -32,7 +30,7 @@ def __error_module(error):
     __default_log(logging.ERROR, message)
 
 
-def bootstrap_module(ready):
+def handler_module_ready(ready):
     @wraps(ready)
     def wrapper(instance):
         module_name = instance.name
@@ -47,20 +45,13 @@ def bootstrap_module(ready):
 
     return wrapper
 
-
-def bootstrap_dependency_resolve(ready):
-    @wraps(ready)
-    def wrapper(instance):
-        module_name = instance.name
-        dependencies = instance.dependencies
-
-        for dependency in dependencies:
-            if not registry.apps.is_installed(dependency):
-                raise DependencyModuleError(
-                    dependent_module=module_name, dependency_module=dependency
-                )
-    return wrapper
-
+def check_module_dependencies(module_name, module_dependencies, django_registry):
+    '''Verifica as dependências de um módulo'''
+    for dependency in module_dependencies:
+        if not django_registry.apps.is_installed(dependency):
+            raise DependencyModuleError(
+                dependent_module=module_name, dependency_module=dependency
+            )
 
 class BootstrapModuleError(Exception):
     def __init__(self, message, *args) -> None:
