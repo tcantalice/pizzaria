@@ -1,7 +1,9 @@
-from django.apps import AppConfig
-from django.apps.registry import apps
+from django.apps import AppConfig, registry
 
-from pizzaria.bootstrap import bootstrap_module, DependencyModuleError
+from pizzaria.bootstrap import (
+    handler_module_ready as init,
+    check_module_dependencies as check_dependencies,
+)
 
 
 class DomainConfig(AppConfig):
@@ -9,11 +11,8 @@ class DomainConfig(AppConfig):
     label = 'domain'
     verbose_name = 'Pizzaria - Módulo de Domínio'
 
-    dependecies = ('pizzaria.modules.core',)
+    dependencies = ('pizzaria.modules.core',)
 
-    @bootstrap_module
+    @init
     def ready(self):
-        for dependecy in self.dependecies:
-            if not apps.is_installed:
-                raise DependencyModuleError(self.name, dependecy)
-        return
+        check_dependencies(self.name, self.dependencies, registry)
