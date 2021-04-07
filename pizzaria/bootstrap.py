@@ -5,15 +5,9 @@ Contém funções úteis para o preparo dos módulos durante a inicialização
 from functools import wraps
 
 import logging
-
-# from pendulum import now
+from django.apps import registry
 
 logger = logging.getLogger('bootstrap')
-
-CONSOLE_BOOTSTRAP_INFO = '[{time}] [bootstrap] [INFO]'
-CONSOLE_BOOTSTRAP_ERROR = '[{time}] [bootstrap] [ERROR]'
-CONSOLE_BOOTSTRAP_ALERT = '[{time}] [bootstrap] [ALERT]'
-
 
 def __default_log(level, message, *args, **kwargs):
     '''Registra a mensagem no log padrão da aplicação'''
@@ -29,16 +23,12 @@ def __info_initialize_module(module_name):
 def __info_finalize_module(module_name):
     '''Log de informação do encerramento de carregamento do módulo'''
     message = "Carregamento do módulo '%s' concluído com sucesso"
-    # __console_log(
-    #     CONSOLE_BOOTSTRAP_INFO, message, time=now().to_datetime_string()
-    # )
     __default_log(logging.INFO, message, module_name)
 
 
 def __error_module(error):
     '''Log de erro durante o carregamento do módulo'''
     message = str(error)
-    # __console_log(CONSOLE_BOOTSTRAP_ERROR, message)
     __default_log(logging.ERROR, message)
 
 
@@ -57,6 +47,21 @@ def bootstrap_module(ready):
 
     return wrapper
 
+
+def bootstrap_dependency_resolve(ready):
+    @wraps(ready)
+    def wrapper(instance):
+        module_name = instance.name
+        dependencies = instance.dependencies
+
+        for dependency in dependencies:
+            if not registry.apps.is_installed(dependency):
+                raise DependencyModuleError(
+                    dependent_module=module_name, dependency_module=dependency
+                )
+    return wrapper
+
+
 class BootstrapModuleError(Exception):
     def __init__(self, message, *args) -> None:
         self.message = message
@@ -69,13 +74,13 @@ class BootstrapModuleError(Exception):
 
 class DependencyModuleError(BootstrapModuleError):
     message_format = (
-        "O módulo '{dependent}' requer o módulo '{dependecy}' instalado"
+        "O módulo '{dependent}' requer o módulo '{dependency}' instalado"
     )
 
-    def __init__(self, dependent_module, dependecy_module, *args):
+    def __init__(self, dependent_module, dependency_module, *args):
         super().__init__(
             self.message_format.format(
-                dependent=dependent_module, dependecy=dependecy_module
+                dependent=dependent_module, dependency=dependency_module
             ),
             *args,
         )
