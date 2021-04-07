@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import environ
+from pendulum import today
 
 
 MODULE_DIR = Path(__file__).resolve().parent
@@ -18,14 +19,50 @@ ALLOWED_HOSTS = ['*']
 CACHE = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': str(MODULE_DIR.joinpath('cache'))
+        'LOCATION': str(MODULE_DIR.joinpath('cache')),
     }
+}
+
+LOGGING_FILENAME_FORMAT = '{date}-pzzr.log'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '[{asctime}] [{name}] [{levelname}] {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        }
+    },
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': Path(
+                env('LOG_PATH', default=str(PROJECT_DIR.joinpath('log')))
+            )
+            .resolve()
+            .joinpath(
+                LOGGING_FILENAME_FORMAT.format(date=today().to_date_string())
+            ),
+            'formatter': 'default',
+        },
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'default'},
+    },
+    'loggers': {
+        'bootstrap': {
+            'level': 'INFO',
+            'handlers': ['file', 'console'],
+            'propagate': False
+        }
+    },
 }
 
 INSTALLED_APPS = [
     # System modules
     'pizzaria.modules.core.CoreConfig',
-    'django.contrib.messages'
+    'pizzaria.modules.domain.DomainConfig',
+    'django.contrib.messages',
 ]
 
 MIDDLEWARE = [
@@ -46,7 +83,7 @@ DATABASES = {
         'USER': env('DATABASE_USER'),
         'PASSWORD': env('DATABASE_PASSWORD'),
         'HOST': env('DATABASE_HOST'),
-        'PORT': env('DATABASE_PORT', default='5432')
+        'PORT': env('DATABASE_PORT', default='5432'),
     }
 }
 
