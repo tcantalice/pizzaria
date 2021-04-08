@@ -5,6 +5,9 @@ Contém funções úteis para o preparo dos módulos durante a inicialização
 from functools import wraps
 import logging
 
+# from .server import kill as kill_server
+from .server import quit as quit_server
+
 logger = logging.getLogger('bootstrap')
 
 def __default_log(level, message, *args, **kwargs):
@@ -40,6 +43,7 @@ def handler_module_ready(ready):
             ready(instance)
         except Exception as e:
             __error_module(e)
+            quit_server()
         else:
             __info_finalize_module(module_name)
 
