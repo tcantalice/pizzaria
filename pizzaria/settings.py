@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     # System modules
     'pizzaria.modules.core.CoreConfig',
     'pizzaria.modules.domain.DomainConfig',
+    'pizzaria.modules.product.ProductConfig'
     'django.contrib.messages',
 ]
 
