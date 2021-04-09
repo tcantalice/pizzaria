@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.apps.registry import apps
 
 from pizzaria.bootstrap import handler_module_ready as init
 
@@ -15,7 +16,10 @@ class ModuleConfig(AppConfig):
 
     @classmethod
     def model_label(cls, model_name):
-        return f'{cls.module_label()}.{model_name}'
+        model = apps.get_app_config(cls.module_label()).get_model(model_name)
+
+        return model._meta.label
+
 
 class CoreConfig(ModuleConfig):
     name = 'pizzaria.modules.core'
