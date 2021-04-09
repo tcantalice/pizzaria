@@ -13,6 +13,9 @@ class ModuleConfig(AppConfig):
         error_msg = f"Método 'module_label' não implementado para a classe '{__class__.__name__}'"
         raise NotImplementedError(error_msg)
 
+    @classmethod
+    def model_label(cls, model_name):
+        return f'{cls.module_label()}.{model_name}'
 
 class CoreConfig(ModuleConfig):
     name = 'pizzaria.modules.core'
