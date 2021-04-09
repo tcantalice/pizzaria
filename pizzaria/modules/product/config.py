@@ -7,9 +7,9 @@ from pizzaria.bootstrap import (
 )
 
 
-class DomainConfig(ModuleConfig):
-    name = 'pizzaria.modules.domain'
-    verbose_name = 'Pizzaria - Módulo de Domínio'
+class ProductConfig(ModuleConfig):
+    name = 'pizzaria.modules.product'
+    verbose_name = 'Pizzaria - Módulo de Produtos'
 
     dependencies = ('pizzaria.modules.core',)
 
@@ -19,5 +19,4 @@ class DomainConfig(ModuleConfig):
 
     @staticmethod
     def module_label():
-        return 'domain'
-
+        return 'product'
