@@ -11,7 +11,7 @@ class ProductConfig(ModuleConfig):
     name = 'pizzaria.modules.product'
     verbose_name = 'Pizzaria - Módulo de Produtos'
 
-    dependencies = ('pizzaria.modules.core','pizzaria.modules.domain')
+    dependencies = ('pizzaria.modules.core',)
 
     @init
     def ready(self):
